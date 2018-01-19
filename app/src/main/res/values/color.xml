@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="lvse">#00C196</color>
+    <color name="blake">#333333</color>
+    <color name="write">#ffffff</color>
+    <color name="touming">#00000000</color>
+    <color name="lanse">#2225ec</color>
+    <color name="transparent">#00000000</color>
+    <color name="huise">#b4b2b2</color>
+
+</resources>

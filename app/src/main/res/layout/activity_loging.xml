@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background"
+    android:layout_height="match_parent"
+    tools:context="com.xiaojun.xungengapp.ui.LogingActivity">
+
+
+    <View
+        android:layout_weight="2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_weight="8"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <TextView
+            android:textColor="@color/lvse"
+            android:text="欢迎登录移动巡更"
+            android:textSize="22sp"
+            android:layout_marginLeft="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+<RelativeLayout
+    android:layout_marginLeft="18dp"
+    android:layout_marginTop="50dp"
+    android:layout_width="match_parent"
+    android:layout_height="60dp">
+
+    <ImageView
+        android:src="@drawable/ic_user"
+        android:id="@+id/im1"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:background="@color/lvse"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="170dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+
+    <EditText
+        android:layout_toRightOf="@+id/im1"
+        android:background="@null"
+        android:textSize="16sp"
+        android:hint="请输入个人账号"
+        android:id="@+id/zhanghao"
+        android:textColorHint="@color/lvse"
+        android:textColor="@color/blake"
+        android:gravity="center_vertical"
+        android:paddingLeft="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+</RelativeLayout>
+
+        <RelativeLayout
+            android:layout_marginLeft="18dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+
+            <ImageView
+                android:src="@drawable/ic_rock"
+                android:id="@+id/im12"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <View
+                android:background="@color/lvse"
+                android:layout_alignParentBottom="true"
+                android:layout_width="match_parent"
+                android:layout_marginRight="170dp"
+                android:layout_height="1dp"/>
+
+            <EditText
+                android:layout_toRightOf="@+id/im12"
+                android:background="@null"
+                android:textSize="16sp"
+                android:inputType="textPassword"
+                android:id="@+id/mima"
+                android:hint="请输入个人密码"
+                android:textColorHint="@color/lvse"
+                android:textColor="@color/blake"
+                android:gravity="center_vertical"
+                android:paddingLeft="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </RelativeLayout>
+
+
+        <TextView
+            android:textColor="@color/lvse"
+            android:text="忘记密码"
+            android:id="@+id/wangjimima"
+            android:textSize="16sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+        <Button
+            android:layout_marginTop="26dp"
+            android:layout_marginLeft="18dp"
+            android:textColor="@color/write"
+            android:textSize="16sp"
+            android:text="登 录"
+            android:id="@+id/denglu"
+            android:gravity="center"
+            android:paddingBottom="8dp"
+            android:background="@drawable/btn_login"
+            android:layout_width="150dp"
+            android:layout_height="60dp" />
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
