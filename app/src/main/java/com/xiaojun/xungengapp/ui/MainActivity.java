@@ -1,6 +1,8 @@
 package com.xiaojun.xungengapp.ui;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +10,10 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -27,18 +31,27 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aprilbrother.aprilbrothersdk.Beacon;
+import com.aprilbrother.aprilbrothersdk.BeaconManager;
+import com.aprilbrother.aprilbrothersdk.Region;
+import com.aprilbrother.aprilbrothersdk.utils.AprilL;
+import com.mabeijianxi.smallvideorecord2.DeviceUtils;
+import com.mabeijianxi.smallvideorecord2.JianXiCamera;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.xiaojun.xungengapp.R;
 import com.xiaojun.xungengapp.beans.DengLuBean;
 import com.xiaojun.xungengapp.beans.DengLuBeanDao;
 import com.xiaojun.xungengapp.dialog.TiJIaoDialog;
+import com.xiaojun.xungengapp.utils.ComparatorBeaconByRssi;
 import com.xiaojun.xungengapp.utils.SpringEffect;
 import com.xiaojun.xungengapp.views.ViewPagerFragmentAdapter;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionListener;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.Call;
@@ -51,7 +64,6 @@ public class MainActivity extends FragmentActivity  {
     private List<Fragment> mFragmentList = new ArrayList<>();
     private ImageView tabIm,tabIm2;
     private TextView tabText,tabText2;
-
     // 定义一个变量，来标识是否退出
     private static boolean isExit = false;
     private TiJIaoDialog tiJIaoDialog=null;
@@ -63,6 +75,13 @@ public class MainActivity extends FragmentActivity  {
     private IntentFilter intentFilter;
     //定义一个广播监听器；
     private NetChangReceiver netChangReceiver;
+    private final int REQUEST_ENABLE_BT=5678;
+    private static final Region ALL_BEACONS_REGION = new Region(
+            "customRegionName", null, null, null);
+    private BeaconManager beaconManager;
+    private ArrayList<Beacon> myBeacons = new ArrayList<Beacon>();;
+    private static final String TAG = "MainActivity";
+
 
 
     Handler mHandler = new Handler() {
@@ -84,14 +103,15 @@ public class MainActivity extends FragmentActivity  {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
                     | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.TRANSPARENT);
+           // window.setNavigationBarColor(Color.TRANSPARENT);
         }
         setContentView(R.layout.activity_main);
-
+        AprilL.enableDebugLogging(true);
+        beaconManager = new BeaconManager(MainActivity.this);
         //实例化过滤器；
         intentFilter = new IntentFilter();
         //添加过滤的Action值；
@@ -115,30 +135,145 @@ public class MainActivity extends FragmentActivity  {
                 .callback(listener)
                 .start();
 
+        beaconManager.setRangingListener(new BeaconManager.RangingListener() {
+            @Override
+            public void onBeaconsDiscovered(Region region,
+                                            final List<Beacon> beacons) {
 
+                for (Beacon beacon : beacons) {
+                    if (beacon.getRssi() > 0) {
+                        Log.i(TAG, "rssi = " + beacon.getRssi());
+                        Log.i(TAG, "mac = " + beacon.getMacAddress());
+                    }
+                }
+                Log.i(TAG, "------------------------------beacons.size = " + beacons.size());
+                myBeacons.clear();
+                myBeacons.addAll(beacons);
+                ComparatorBeaconByRssi com = new ComparatorBeaconByRssi();
+                Collections.sort(myBeacons, com);
+
+
+            }
+        });
+
+        beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
+
+            @Override
+            public void onExitedRegion(Region arg0) {
+                showMSG("进入范围",3);
+
+            }
+
+            @Override
+            public void onEnteredRegion(Region arg0, List<Beacon> arg1) {
+                showMSG("不在范围",3);
+            }
+        });
     }
 
     private PermissionListener listener = new PermissionListener() {
         @Override
-        public void onSucceed(int requestCode, @NonNull List<String> grantedPermissions) {
+        public void onSucceed(int requestCode,  List<String> grantedPermissions) {
             // 权限申请成功回调。
-
             // 这里的requestCode就是申请时设置的requestCode。
             // 和onActivityResult()的requestCode一样，用来区分多个不同的请求。
             if(requestCode == 300) {
-               // link_jc();
+             // Initializes Bluetooth adapter.
+                initSmallVideo();
+
+                final BluetoothManager bluetoothManager =
+                        (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                BluetoothAdapter mBluetoothAdapter = bluetoothManager.getAdapter();
+                if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                }else {
+                    //开启扫描
+                    Log.d("MainActivity", "扫描开始");
+
+                    connectToService();
+
+                }
+
+
             }
         }
 
         @Override
-        public void onFailed(int requestCode, @NonNull List<String> deniedPermissions) {
+        public void onFailed(int requestCode,  List<String> deniedPermissions) {
             // 权限申请失败回调。
-            if(requestCode == 200) {
-                showMSG("授权失败,请到设置--软件权限界面重新授权",3);
+            showMSG("授权失败,请到设置--软件权限界面重新授权",3);
 
-            }
         }
     };
+
+
+    /**
+     * 连接服务 开始搜索beacon connect service start scan beacons
+     */
+    private void connectToService() {
+        Log.i(TAG, "connectToService");
+        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+            @Override
+            public void onServiceReady() {
+                try {
+                    beaconManager.startRanging(ALL_BEACONS_REGION);
+                    // beaconManager.startMonitoring(ALL_BEACONS_REGION);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public static void initSmallVideo() {
+
+        // 设置拍摄视频缓存路径
+        File dcim = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        if (DeviceUtils.isZte()) {
+            if (dcim.exists()) {
+                JianXiCamera.setVideoCachePath(dcim + "/mabeijianxi/");
+            } else {
+                JianXiCamera.setVideoCachePath(dcim.getPath().replace("/sdcard/",
+                        "/sdcard-ext/")
+                        + "/mabeijianxi/");
+            }
+        } else {
+            JianXiCamera.setVideoCachePath(dcim + "/mabeijianxi/");
+        }
+        // 初始化拍摄，遇到问题可选择开启此标记，以方便生成日志
+        JianXiCamera.initialize(false,null);
+    }
+
+    @Override
+    protected void onStop() {
+        try {
+            myBeacons.clear();
+            beaconManager.stopRanging(ALL_BEACONS_REGION);
+            beaconManager.disconnect();
+        } catch (RemoteException e) {
+            Log.d(TAG, "Error while stopping ranging", e);
+        }
+        super.onStop();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ENABLE_BT) {
+            if (resultCode == Activity.RESULT_OK) {
+                //开始扫描
+                Log.d("MainActivity", "开始扫描");
+
+
+                connectToService();
+
+            } else {
+                showMSG("开启蓝牙失败,无法巡更,请重新开启蓝牙",3);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
     private  class NetChangReceiver extends BroadcastReceiver {
 

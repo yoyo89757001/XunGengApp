@@ -1,16 +1,29 @@
 package com.xiaojun.xungengapp;
 
 import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.util.Log;
 
 
+import com.mabeijianxi.smallvideorecord2.DeviceUtils;
+import com.mabeijianxi.smallvideorecord2.JianXiCamera;
 import com.tencent.bugly.Bugly;
 import com.xiaojun.xungengapp.beans.DaoMaster;
 import com.xiaojun.xungengapp.beans.DaoSession;
 import com.xiaojun.xungengapp.beans.DengLuBean;
 import com.xiaojun.xungengapp.cookies.CookiesManager;
+import com.xiaojun.xungengapp.ui.MainActivity;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
+import com.yanzhenjie.permission.PermissionListener;
 
+import java.io.File;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -37,6 +50,7 @@ public class MyAppLaction extends Application {
         setDatabase();
 
         try {
+
             Bugly.init(getApplicationContext(), "d25944f49f", false);
 
             //搜集本地tbs内核信息并上报服务器，服务器返回结果决定使用哪个内核。
@@ -64,6 +78,8 @@ public class MyAppLaction extends Application {
 
 
     }
+
+
 
     public static OkHttpClient getOkHttpClient(){
 

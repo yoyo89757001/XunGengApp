@@ -4,15 +4,11 @@ package com.xiaojun.xungengapp.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
-
-
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.github.jdsjlzx.ItemDecoration.DividerDecoration;
 import com.github.jdsjlzx.interfaces.OnItemClickListener;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
@@ -36,10 +32,8 @@ import butterknife.ButterKnife;
  */
 public class Fragment1 extends Fragment implements ClickIntface {
 
-    private WrapContentLinearLayoutManager linearLayoutManager = null;
     private LRecyclerView lRecyclerView;
     private LRecyclerViewAdapter lRecyclerViewAdapter;
-    private Handler handler;
     private List<String> stringList=new ArrayList<>();
     private F1Adapter adapter;
 
@@ -60,9 +54,8 @@ public class Fragment1 extends Fragment implements ClickIntface {
         stringList.add("ddddd");
         stringList.add("ddddd");
         lRecyclerViewAdapter = new LRecyclerViewAdapter(adapter);
-        linearLayoutManager = new WrapContentLinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL,false);
+        WrapContentLinearLayoutManager linearLayoutManager = new WrapContentLinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         lRecyclerView.setLayoutManager(linearLayoutManager);
-
         lRecyclerView.setAdapter(lRecyclerViewAdapter);
 
         final DividerDecoration divider = new DividerDecoration.Builder(getContext())
@@ -73,9 +66,9 @@ public class Fragment1 extends Fragment implements ClickIntface {
 
         lRecyclerView.addItemDecoration(divider);
         //设置头部加载颜色
-        lRecyclerView.setHeaderViewColor(R.color.colorAccent, R.color.blake ,android.R.color.white);
+        lRecyclerView.setHeaderViewColor(R.color.colorAccent, R.color.blake ,R.color.write);
         lRecyclerView.setRefreshProgressStyle(ProgressStyle.LineSpinFadeLoader);
-        lRecyclerView.setFooterViewColor(R.color.huise, R.color.blake ,android.R.color.white);
+        lRecyclerView.setFooterViewColor(R.color.huise, R.color.blake ,R.color.write);
         //设置底部加载文字提示
         lRecyclerView.setFooterViewHint("拼命加载中","--------我是有底线的--------","网络不给力...");
         lRecyclerView.setLoadingMoreProgressStyle(ProgressStyle.BallSpinFadeLoader);
@@ -84,6 +77,7 @@ public class Fragment1 extends Fragment implements ClickIntface {
             @Override
             public void onItemClick(View view, int position) {
 
+                startActivity(new Intent(getContext(),DaKaActivity.class));
 
             }
         });

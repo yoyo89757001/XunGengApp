@@ -34,13 +34,7 @@ public class F1Adapter extends RecyclerView.Adapter<F1Adapter.ViewHolder> {
     //将数据与界面进行绑定的操作
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-        viewHolder.t1.setText(datas.get(position));
-        viewHolder.t1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clickIntface.BackId(position);
-            }
-        });
+
 
     }
     //获取数据的数量
@@ -55,7 +49,7 @@ public class F1Adapter extends RecyclerView.Adapter<F1Adapter.ViewHolder> {
 
         private ViewHolder(View view){
             super(view);
-            t1 = (TextView) view.findViewById(R.id.t1);
+          //  t1 = (TextView) view.findViewById(R.id.t1);
 
 
         }
