@@ -18,6 +18,7 @@ import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import com.github.jdsjlzx.recyclerview.ProgressStyle;
 import com.xiaojun.xungengapp.R;
 import com.xiaojun.xungengapp.adapter.F1Adapter;
+import com.xiaojun.xungengapp.adapter.RenWuLiuChengAdapter;
 import com.xiaojun.xungengapp.intface.ClickIntface;
 import com.xiaojun.xungengapp.views.WrapContentLinearLayoutManager;
 
@@ -77,7 +78,7 @@ public class Fragment1 extends Fragment implements ClickIntface {
             @Override
             public void onItemClick(View view, int position) {
 
-                startActivity(new Intent(getContext(),DaKaActivity.class));
+                startActivity(new Intent(getContext(),RenWuLiuChengActivity.class));
 
             }
         });

@@ -23,20 +23,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.mabeijianxi.smallvideorecord2.MediaRecorderActivity;
 import com.mabeijianxi.smallvideorecord2.model.MediaRecorderConfig;
-
 import com.sdsmdg.tastytoast.TastyToast;
 import com.xiaojun.xungengapp.R;
 import com.xiaojun.xungengapp.beans.DataSynEvent;
-
+import com.xiaojun.xungengapp.beans.MainBean;
 import com.xiaojun.xungengapp.intface.ClickIntface2;
 import com.xiaojun.xungengapp.utils.FileUtil;
 import com.xiaojun.xungengapp.utils.SpringEffect;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -45,21 +46,25 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import top.zibin.luban.Luban;
 import top.zibin.luban.OnCompressListener;
 
 import static org.greenrobot.eventbus.EventBus.TAG;
 
 public class DaKaActivity extends Activity implements ClickIntface2 {
+    @BindView(R.id.yulan)
+    Button yulan;
     private ZhaoPianAdapter zhaoPianAdapter = null;
     private List<String> stringList;
-    private RecyclerView recyclerView,recyclerView2;
-    private File mSavePhotoFile=null;
+    private RecyclerView recyclerView, recyclerView2;
+    private File mSavePhotoFile = null;
     private ImageView shiping_im;
-    private String video_uri=null;
-    private String output_directory=null;
-    private String video_screenshot=null;
-
+    private String video_uri = null;
+    private String output_directory = null;
+    private String video_screenshot = null;
+    private DataSynEvent dataSynEvent=null;
 
 
     @Override
@@ -68,15 +73,15 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
         Log.d(TAG, "创建");
 
 
-        video_uri=getIntent().getStringExtra(MediaRecorderActivity.VIDEO_URI);
-        output_directory=getIntent().getStringExtra(MediaRecorderActivity.OUTPUT_DIRECTORY);
-        video_screenshot=getIntent().getStringExtra(MediaRecorderActivity.VIDEO_SCREENSHOT);
+        video_uri = getIntent().getStringExtra(MediaRecorderActivity.VIDEO_URI);
+        output_directory = getIntent().getStringExtra(MediaRecorderActivity.OUTPUT_DIRECTORY);
+        video_screenshot = getIntent().getStringExtra(MediaRecorderActivity.VIDEO_SCREENSHOT);
 
-        if (video_uri!=null || output_directory!=null && video_screenshot!=null){
+        if (video_uri != null || output_directory != null && video_screenshot != null) {
 
-            EventBus.getDefault().post(new DataSynEvent(video_uri,output_directory,video_screenshot));
+            EventBus.getDefault().post(new DataSynEvent(video_uri, output_directory, video_screenshot));
             finish();
-        }else {
+        } else {
             EventBus.getDefault().register(DaKaActivity.this);//订阅
         }
 
@@ -93,14 +98,16 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
             // window.setNavigationBarColor(Color.TRANSPARENT);
         }
         setContentView(R.layout.activity_da_ka);
-        shiping_im= (ImageView) findViewById(R.id.shiping_im);
+        ButterKnife.bind(this);
+        shiping_im = (ImageView) findViewById(R.id.shiping_im);
+
         stringList = new ArrayList<>();
         stringList.add("pathOne");
         recyclerView = (RecyclerView) findViewById(R.id.recy);
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(manager);
-      // recyclerView.addItemDecoration(new MyDecoration(DaKaActivity.this, LinearLayoutManager.VERTICAL,10,R.color.transparent));
+        // recyclerView.addItemDecoration(new MyDecoration(DaKaActivity.this, LinearLayoutManager.VERTICAL,10,R.color.transparent));
 
         zhaoPianAdapter = new ZhaoPianAdapter(stringList);
         zhaoPianAdapter.setClickIntface(this);
@@ -126,30 +133,40 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
 
             }
         });
+        SpringEffect.doEffectSticky(findViewById(R.id.yulan), new Runnable() {
+            @Override
+            public void run() {
+                startActivity(new Intent(DaKaActivity.this,VideoActivity.class).putExtra("url",dataSynEvent.getVideo_uri()));
 
+            }
+        });
 
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN) //在ui线程执行
     public void onDataSynEvent(DataSynEvent event) {
         Log.d(TAG, event.toString());
-           Glide.with(DaKaActivity.this)
-                   .load(event.getVideo_screenshot())
-                   //  .skipMemoryCache(true)
-                   //  .diskCacheStrategy(DiskCacheStrategy.NONE)
-                   //  .transform(new GlideCircleTransform(DengJiActivity.this,2, Color.parseColor("#ffffffff")))
-                   .into(shiping_im);
-           shiping_im.setPadding(20,20,20,20);
+        dataSynEvent=event;
+        Glide.with(DaKaActivity.this)
+                .load(event.getVideo_screenshot())
+                //  .skipMemoryCache(true)
+                //  .diskCacheStrategy(DiskCacheStrategy.NONE)
+                //  .transform(new GlideCircleTransform(DengJiActivity.this,2, Color.parseColor("#ffffffff")))
+                .into(shiping_im);
+        shiping_im.setPadding(20, 20, 20, 20);
+        yulan.setVisibility(View.VISIBLE);
     }
-
 
 
     @Override
     protected void onDestroy() {
-        if ( EventBus.getDefault().isRegistered(DaKaActivity.this)){
+        if (EventBus.getDefault().isRegistered(DaKaActivity.this)) {
             EventBus.getDefault().unregister(this);//解除订阅
+            EventBus.getDefault().post(new MainBean(true));
             Log.d(TAG, "解除订阅");
         }
+
+
         super.onDestroy();
     }
 
@@ -161,16 +178,16 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
             public void run() {
 
                 new AlertDialog.Builder(DaKaActivity.this).setItems(
-                        new String[] { "拍摄照片", "从相册选择" },
+                        new String[]{"拍摄照片", "从相册选择"},
                         new DialogInterface.OnClickListener() {
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which) {
                                     case 0:
-                                        String fn = System.currentTimeMillis()+"a.jpg";
+                                        String fn = System.currentTimeMillis() + "a.jpg";
                                         FileUtil.isExists(FileUtil.PATH, fn);
-                                        mSavePhotoFile=new File( FileUtil.SDPATH + File.separator + FileUtil.PATH + File.separator + fn);
+                                        mSavePhotoFile = new File(FileUtil.SDPATH + File.separator + FileUtil.PATH + File.separator + fn);
 
                                         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                                         Uri photoUri = FileProvider.getUriForFile(
@@ -235,7 +252,7 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
                             public void onSuccess(File file) {
                                 Log.d("BaoZhangDengJiActivity", "删除:" + mSavePhotoFile.delete());
                                 //  Log.d("BaoZhangDengJiActivity", "file.length():" + file.length()+"  "+file.getAbsolutePath());
-                                stringList.add(0,file.getAbsolutePath());
+                                stringList.add(0, file.getAbsolutePath());
                                 zhaoPianAdapter.notifyDataSetChanged();
 
 //                                // 选择本地视频压缩
@@ -253,7 +270,7 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
                             @Override
                             public void onError(Throwable e) {
 
-                                showMSG("压缩图片出现错误",4);
+                                showMSG("压缩图片出现错误", 4);
                             }
                         }).launch();    //启动压缩
 
@@ -294,18 +311,18 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
                     clickIntface.BackId(viewHolder.itemView);
                 }
             });
-            if (datas.get(position).equals("pathOne")){
+            if (datas.get(position).equals("pathOne")) {
                 viewHolder.tupian.setImageResource(R.drawable.add_pic);
-                viewHolder.tupian.setPadding(60,60,60,60);
+                viewHolder.tupian.setPadding(60, 60, 60, 60);
                 viewHolder.shanchu.setVisibility(View.GONE);
-            }else {
+            } else {
                 Glide.with(DaKaActivity.this)
                         .load(datas.get(position))
                         //  .skipMemoryCache(true)
                         //  .diskCacheStrategy(DiskCacheStrategy.NONE)
                         //  .transform(new GlideCircleTransform(DengJiActivity.this,2, Color.parseColor("#ffffffff")))
                         .into(viewHolder.tupian);
-                viewHolder.tupian.setPadding(20,20,20,20);
+                viewHolder.tupian.setPadding(20, 20, 20, 20);
                 viewHolder.shanchu.setVisibility(View.VISIBLE);
             }
             viewHolder.shanchu.setOnClickListener(new View.OnClickListener() {
@@ -328,7 +345,7 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
 
         //自定义的ViewHolder，持有每个Item的的所有界面元素
         class ViewHolder extends RecyclerView.ViewHolder {
-            private ImageView tupian,shanchu;
+            private ImageView tupian, shanchu;
 
 
             private ViewHolder(View view) {
@@ -339,8 +356,6 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
             }
         }
     }
-
-
 
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -370,6 +385,7 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
         displayImage(imagePath); // 根据图片路径显示图片
         // System.err.println(imagePath);
     }
+
     private void displayImage(String imagePath) {
         if (imagePath != null) {
             try {
@@ -387,14 +403,14 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
                             @Override
                             public void onSuccess(File file) {
                                 // Log.d("BaoZhangDengJiActivity", "file.length():" + file.length()+"  "+file.getAbsolutePath());
-                                stringList.add(0,file.getAbsolutePath());
+                                stringList.add(0, file.getAbsolutePath());
                                 zhaoPianAdapter.notifyDataSetChanged();
                             }
 
                             @Override
                             public void onError(Throwable e) {
 
-                                showMSG("压缩图片出现错误",4);
+                                showMSG("压缩图片出现错误", 4);
                             }
                         }).launch();    //启动压缩
 
@@ -403,24 +419,25 @@ public class DaKaActivity extends Activity implements ClickIntface2 {
             }
 
         } else {
-            showMSG("没有得到图片",4);
+            showMSG("没有得到图片", 4);
         }
     }
 
 
-    private void showMSG(final String s,final int i){
+    private void showMSG(final String s, final int i) {
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
-                Toast tastyToast= TastyToast.makeText(DaKaActivity.this,s,TastyToast.LENGTH_LONG,i);
-                tastyToast.setGravity(Gravity.CENTER,0,0);
+                Toast tastyToast = TastyToast.makeText(DaKaActivity.this, s, TastyToast.LENGTH_LONG, i);
+                tastyToast.setGravity(Gravity.CENTER, 0, 0);
                 tastyToast.show();
 
             }
         });
     }
+
     private String getImagePath(Uri uri, String selection) {
         String path = null;
         // 通过uri和selection来获取真实的图片路径

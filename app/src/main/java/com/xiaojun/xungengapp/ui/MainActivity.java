@@ -33,10 +33,13 @@ import com.aprilbrother.aprilbrothersdk.Beacon;
 import com.aprilbrother.aprilbrothersdk.BeaconManager;
 import com.aprilbrother.aprilbrothersdk.Region;
 import com.aprilbrother.aprilbrothersdk.utils.AprilL;
+import com.bumptech.glide.Glide;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.xiaojun.xungengapp.R;
+import com.xiaojun.xungengapp.beans.DataSynEvent;
 import com.xiaojun.xungengapp.beans.DengLuBean;
 import com.xiaojun.xungengapp.beans.DengLuBeanDao;
+import com.xiaojun.xungengapp.beans.MainBean;
 import com.xiaojun.xungengapp.dialog.TiJIaoDialog;
 import com.xiaojun.xungengapp.utils.ComparatorBeaconByRssi;
 import com.xiaojun.xungengapp.utils.SpringEffect;
@@ -44,11 +47,18 @@ import com.xiaojun.xungengapp.views.ViewPagerFragmentAdapter;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionListener;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import okhttp3.Call;
+
+import static org.greenrobot.eventbus.EventBus.TAG;
 
 public class MainActivity extends FragmentActivity  {
     private RelativeLayout r1,r2;
@@ -75,6 +85,7 @@ public class MainActivity extends FragmentActivity  {
     private BeaconManager beaconManager;
     private ArrayList<Beacon> myBeacons = new ArrayList<Beacon>();;
     private static final String TAG = "MainActivity";
+    private static boolean isShow=true;
 
 
 
@@ -103,8 +114,10 @@ public class MainActivity extends FragmentActivity  {
             window.setStatusBarColor(Color.TRANSPARENT);
            // window.setNavigationBarColor(Color.TRANSPARENT);
         }
+        EventBus.getDefault().register(MainActivity.this);//订阅
+
         setContentView(R.layout.activity_main);
-        AprilL.enableDebugLogging(true);
+        AprilL.enableDebugLogging(false);
         beaconManager = new BeaconManager(MainActivity.this);
         //实例化过滤器；
         intentFilter = new IntentFilter();
@@ -134,17 +147,22 @@ public class MainActivity extends FragmentActivity  {
             public void onBeaconsDiscovered(Region region,
                                             final List<Beacon> beacons) {
 
-                for (Beacon beacon : beacons) {
-                    if (beacon.getRssi() > 0) {
-                        Log.i(TAG, "rssi = " + beacon.getRssi());
-                        Log.i(TAG, "mac = " + beacon.getMacAddress());
-                    }
-                }
-                Log.i(TAG, "------------------------------beacons.size = " + beacons.size());
+//                for (Beacon beacon : beacons) {
+//                    if (beacon.getRssi() > 0) {
+//                        Log.i(TAG, "rssi = " + beacon.getRssi());
+//                        Log.i(TAG, "mac = " + beacon.getMacAddress());
+//                    }
+//                }
+               // Log.i(TAG, "------------------------------beacons.size = " + beacons.size());
                 myBeacons.clear();
                 myBeacons.addAll(beacons);
                 ComparatorBeaconByRssi com = new ComparatorBeaconByRssi();
                 Collections.sort(myBeacons, com);
+                if (isShow){
+                    isShow=false;
+                    startActivity(new Intent(MainActivity.this,DaKaActivity.class));
+
+                }
 
 
             }
@@ -163,6 +181,13 @@ public class MainActivity extends FragmentActivity  {
                 showMSG("不在范围",3);
             }
         });
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN) //在ui线程执行
+    public void onDataSynEvent(MainBean bean) {
+        Log.d(TAG,"收到"+bean.isIstrue());
+        isShow=true;
     }
 
     private PermissionListener listener = new PermissionListener() {
@@ -223,13 +248,8 @@ public class MainActivity extends FragmentActivity  {
 
     @Override
     protected void onStop() {
-        try {
-            myBeacons.clear();
-            beaconManager.stopRanging(ALL_BEACONS_REGION);
-            beaconManager.disconnect();
-        } catch (RemoteException e) {
-            Log.d(TAG, "Error while stopping ranging", e);
-        }
+        Log.d(TAG, "停止");
+
         super.onStop();
     }
 
@@ -280,8 +300,19 @@ public class MainActivity extends FragmentActivity  {
     protected void onDestroy() {
         if (call!=null)
             call.cancel();
-        super.onDestroy();
+        try {
+            myBeacons.clear();
+            beaconManager.stopRanging(ALL_BEACONS_REGION);
+            beaconManager.disconnect();
+        } catch (RemoteException e) {
+            Log.d(TAG, "Error while stopping ranging", e);
+        }
         unregisterReceiver(netChangReceiver);
+        if ( EventBus.getDefault().isRegistered(MainActivity.this)){
+            EventBus.getDefault().unregister(this);//解除订阅
+            Log.d(TAG, "解除订阅");
+        }
+        super.onDestroy();
     }
 
     private void initViewPager() {

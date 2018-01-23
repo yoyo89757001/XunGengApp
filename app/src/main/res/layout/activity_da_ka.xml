@@ -140,16 +140,36 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <ImageView
-                android:layout_width="120dp"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="10dp"
-                android:id="@+id/shiping_im"
-                android:scaleType="fitXY"
                 android:layout_marginBottom="10dp"
-                android:src="@drawable/add_video"
-                android:background="@drawable/zidonghuoqu_lvse22"
-                android:layout_height="120dp" />
+                android:layout_height="120dp">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:id="@+id/shiping_im"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/add_video"
+                    android:background="@drawable/zidonghuoqu_lvse22"
+                    android:layout_height="match_parent" />
+
+                <Button
+                    android:layout_width="70dp"
+                    android:layout_toRightOf="@+id/shiping_im"
+                    android:textColor="@color/write"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    android:background="@drawable/zidonghuoqu_lvse22"
+                    android:layout_marginLeft="12dp"
+                    android:id="@+id/yulan"
+                    android:text="预览"
+                    android:layout_height="36dp" />
+
+
+            </RelativeLayout>
+
 
             <View
                 android:layout_marginTop="10dp"
