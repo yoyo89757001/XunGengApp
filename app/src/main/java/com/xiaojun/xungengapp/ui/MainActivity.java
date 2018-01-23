@@ -10,11 +10,9 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -35,8 +33,6 @@ import com.aprilbrother.aprilbrothersdk.Beacon;
 import com.aprilbrother.aprilbrothersdk.BeaconManager;
 import com.aprilbrother.aprilbrothersdk.Region;
 import com.aprilbrother.aprilbrothersdk.utils.AprilL;
-import com.mabeijianxi.smallvideorecord2.DeviceUtils;
-import com.mabeijianxi.smallvideorecord2.JianXiCamera;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.xiaojun.xungengapp.R;
 import com.xiaojun.xungengapp.beans.DengLuBean;
@@ -48,8 +44,6 @@ import com.xiaojun.xungengapp.views.ViewPagerFragmentAdapter;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionListener;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -179,7 +173,6 @@ public class MainActivity extends FragmentActivity  {
             // 和onActivityResult()的requestCode一样，用来区分多个不同的请求。
             if(requestCode == 300) {
              // Initializes Bluetooth adapter.
-                initSmallVideo();
 
                 final BluetoothManager bluetoothManager =
                         (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -226,25 +219,7 @@ public class MainActivity extends FragmentActivity  {
         });
     }
 
-    public static void initSmallVideo() {
 
-        // 设置拍摄视频缓存路径
-        File dcim = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        if (DeviceUtils.isZte()) {
-            if (dcim.exists()) {
-                JianXiCamera.setVideoCachePath(dcim + "/mabeijianxi/");
-            } else {
-                JianXiCamera.setVideoCachePath(dcim.getPath().replace("/sdcard/",
-                        "/sdcard-ext/")
-                        + "/mabeijianxi/");
-            }
-        } else {
-            JianXiCamera.setVideoCachePath(dcim + "/mabeijianxi/");
-        }
-        // 初始化拍摄，遇到问题可选择开启此标记，以方便生成日志
-        JianXiCamera.initialize(false,null);
-    }
 
     @Override
     protected void onStop() {

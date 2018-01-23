@@ -50,7 +50,7 @@ public class MyAppLaction extends Application {
         setDatabase();
 
         try {
-
+        initSmallVideo();
             Bugly.init(getApplicationContext(), "d25944f49f", false);
 
             //搜集本地tbs内核信息并上报服务器，服务器返回结果决定使用哪个内核。
@@ -93,7 +93,25 @@ public class MyAppLaction extends Application {
         //okhttpclient.dispatcher().cancelAll();取消所有的请求
     }
 
+    public static void initSmallVideo() {
 
+        // 设置拍摄视频缓存路径
+        File dcim = Environment
+                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        if (DeviceUtils.isZte()) {
+            if (dcim.exists()) {
+                JianXiCamera.setVideoCachePath(dcim + "/mabeijianxi/");
+            } else {
+                JianXiCamera.setVideoCachePath(dcim.getPath().replace("/sdcard/",
+                        "/sdcard-ext/")
+                        + "/mabeijianxi/");
+            }
+        } else {
+            JianXiCamera.setVideoCachePath(dcim + "/mabeijianxi/");
+        }
+        // 初始化拍摄，遇到问题可选择开启此标记，以方便生成日志
+        JianXiCamera.initialize(false,null);
+    }
     /**
      * 设置greenDao
      */

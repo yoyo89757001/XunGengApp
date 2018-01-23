@@ -140,12 +140,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <android.support.v7.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_marginTop="@dimen/dp_10"
-                android:layout_marginBottom="@dimen/dp_10"
-                android:id="@+id/recy2"
-                android:layout_height="wrap_content"/>
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="10dp"
+                android:id="@+id/shiping_im"
+                android:scaleType="fitXY"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/add_video"
+                android:background="@drawable/zidonghuoqu_lvse22"
+                android:layout_height="120dp" />
 
             <View
                 android:layout_marginTop="10dp"

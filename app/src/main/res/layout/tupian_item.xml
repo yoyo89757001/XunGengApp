@@ -2,11 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="130dp"
+    android:layout_marginLeft="10dp"
     android:layout_height="130dp">
 
     <ImageView
         android:layout_width="120dp"
-        android:background="@color/lvse"
+        android:background="@drawable/zidonghuoqu_lvse22"
         android:id="@+id/tupian"
         android:scaleType="fitXY"
         android:layout_centerInParent="true"

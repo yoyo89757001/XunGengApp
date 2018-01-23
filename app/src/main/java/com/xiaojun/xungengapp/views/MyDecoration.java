@@ -69,7 +69,7 @@ public class MyDecoration extends RecyclerView.ItemDecoration{
             this(context, orientation);
             mDividerHeight = dividerHeight;
             mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            mPaint.setColor(Color.parseColor("#ffffffff"));
+            mPaint.setColor(Color.parseColor("#00000000"));
             mPaint.setStyle(Paint.Style.FILL);
         }
 

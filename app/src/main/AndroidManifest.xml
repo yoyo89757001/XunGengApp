@@ -68,7 +68,7 @@
                 android:resource="@xml/provider_pathss" />
         </provider>
         <activity android:name="com.mabeijianxi.smallvideorecord2.MediaRecorderActivity"
-            android:theme="@style/AppTheme"
+            android:theme="@style/NotitleTheme"
             />
 
 
